@@ -1,0 +1,175 @@
+static_erasure: mirror-3-dc
+
+host_configs:
+- drive:
+  - path: /dev/disk/by-partlabel/kikimr_nvme_01
+    type: SSD
+  - path: /dev/disk/by-partlabel/kikimr_nvme_02
+    type: SSD
+  - path: /dev/disk/by-partlabel/kikimr_nvme_03
+    type: SSD
+  - path: /dev/disk/by-partlabel/kikimr_nvme_04
+    type: SSD
+  host_config_id: 1
+
+hosts:
+- host: ydb-host-027.ydb.domain.ru
+  host_config_id: 1
+  location:
+    body: 1
+    data_center: zone-1
+    rack: '1'
+  node_id: 1
+
+- host: ydb-host-028.ydb.domain.ru
+  host_config_id: 1
+  location:
+    body: 2
+    data_center: zone-1
+    rack: '2'
+  node_id: 2
+
+- host: ydb-host-029.ydb.domain.ru
+  host_config_id: 1
+  location:
+    body: 3
+    data_center: zone-1
+    rack: '3'
+  node_id: 3
+
+- host: ydb-host-030.ydb.domain.ru
+  host_config_id: 1
+  location:
+    body: 4
+    data_center: zone-2
+    rack: '4'
+  node_id: 4
+
+- host: ydb-host-031.ydb.domain.ru
+  host_config_id: 1
+  location:
+    body: 5
+    data_center: zone-2
+    rack: '5'
+  node_id: 5
+
+- host: ydb-host-032.ydb.domain.ru
+  host_config_id: 1
+  location:
+    body: 6
+    data_center: zone-2
+    rack: '6'
+  node_id: 6
+
+- host: ydb-host-033.ydb.domain.ru
+  host_config_id: 1
+  location:
+    body: 7
+    data_center: zone-3
+    rack: '7'
+  node_id: 7
+
+- host: ydb-host-034.ydb.domain.ru
+  host_config_id: 1
+  location:
+    body: 8
+    data_center: zone-3
+    rack: '8'
+  node_id: 8
+
+- host: ydb-host-035.ydb.domain.ru
+  host_config_id: 1
+  location:
+    body: 9
+    data_center: zone-3
+    rack: '9'
+  node_id: 9
+
+domains_config:
+  domain:
+  - name: Root
+    storage_pool_types:
+    - kind: ssd
+      pool_config:
+        box_id: 1
+        erasure_species: mirror-3-dc
+        kind: ssd
+        pdisk_filter:
+        - property:
+          - type: SSD
+        vdisk_kind: Default
+  security_config:
+    enforce_user_token_requirement: false
+  state_storage:
+  - ring:
+      node: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+      nto_select: 9
+    ssid: 1
+
+blob_storage_config:
+  service_set:
+    groups:
+    - erasure_species: mirror-3-dc
+      rings:
+
+      - fail_domains:
+        - vdisk_locations:
+          - node_id: "ydb-host-027.ydb.domain.ru"
+            pdisk_category: SSD
+            path: /dev/disk/by-partlabel/kikimr_nvme_01
+        - vdisk_locations:
+          - node_id: "ydb-host-028.ydb.domain.ru"
+            pdisk_category: SSD
+            path: /dev/disk/by-partlabel/kikimr_nvme_01
+        - vdisk_locations:
+          - node_id: "ydb-host-029.ydb.domain.ru"
+            pdisk_category: SSD
+            path: /dev/disk/by-partlabel/kikimr_nvme_01
+
+      - fail_domains:
+        - vdisk_locations:
+          - node_id: "ydb-host-030.ydb.domain.ru"
+            pdisk_category: SSD
+            path: /dev/disk/by-partlabel/kikimr_nvme_01
+        - vdisk_locations:
+          - node_id: "ydb-host-031.ydb.domain.ru"
+            pdisk_category: SSD
+            path: /dev/disk/by-partlabel/kikimr_nvme_01
+        - vdisk_locations:
+          - node_id: "ydb-host-032.ydb.domain.ru"
+            pdisk_category: SSD
+            path: /dev/disk/by-partlabel/kikimr_nvme_01
+
+      - fail_domains:
+        - vdisk_locations:
+          - node_id: "ydb-host-033.ydb.domain.ru"
+            pdisk_category: SSD
+            path: /dev/disk/by-partlabel/kikimr_nvme_01
+        - vdisk_locations:
+          - node_id: "ydb-host-034.ydb.domain.ru"
+            pdisk_category: SSD
+            path: /dev/disk/by-partlabel/kikimr_nvme_01
+        - vdisk_locations:
+          - node_id: "ydb-host-035.ydb.domain.ru"
+            pdisk_category: SSD
+            path: /dev/disk/by-partlabel/kikimr_nvme_01
+
+channel_profile_config:
+  profile:
+  - channel:
+    - erasure_species: mirror-3-dc
+      pdisk_category: 0
+      storage_pool_kind: ssd
+    - erasure_species: mirror-3-dc
+      pdisk_category: 0
+      storage_pool_kind: ssd
+    - erasure_species: mirror-3-dc
+      pdisk_category: 0
+      storage_pool_kind: ssd
+    profile_id: 0
+
+# 14 cores for AS + 2 for pdisks
+actor_system_config:
+  use_auto_config: true
+  node_type: STORAGE
+  cpu_count: 14
